@@ -408,6 +408,8 @@ define_sys_register!(ICH_VMCR_EL2);
 define_sys_register!(ICH_HCR_EL2);
 define_sys_register!(ICH_MISR_EL2);
 
+define_sys_register!(ICC_CTLR_EL1, EXT_RANGE[19 - 19]);
+
 define_sys_register!(
     ICC_SRE_EL2,
     ENABLE[3 - 3],
@@ -415,6 +417,26 @@ define_sys_register!(
     DFB[1 - 1],
     SRE[0 - 0]
 );
+
+define_bits!(
+    ICH_LR,
+    STATE[63 - 62],
+    HW[61 - 61],
+    GROUP[60 - 60],
+    NMI[59 - 59],
+    PRIORITY[55 - 48],
+    EOI[41 - 41],
+    PINTID[44 - 32],
+    VINTID[31 - 0]
+);
+
+pub mod ich_lr_state {
+    pub const INVALID: u64 = 0b00;
+    pub const PENDING: u64 = 0b01;
+    pub const ACTIVE: u64 = 0b10;
+    pub const PENDING_ACTIVE: u64 = 0b11;
+}
+
 //CNTHCTL_EL2: S3_4_C14_C1_0
 define_sys_register!(S3_4_C14_C1_0, EL1PCTEN[11 - 11], EL1PTEN[10 - 10]);
 
