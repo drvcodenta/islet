@@ -438,8 +438,7 @@ pub mod ich_lr_state {
     pub const PENDING_ACTIVE: u64 = 0b11;
 }
 
-//CNTHCTL_EL2: S3_4_C14_C1_0
-define_sys_register!(S3_4_C14_C1_0, EL1PCTEN[11 - 11], EL1PTEN[10 - 10]);
+define_sys_register!(CNTHCTL_EL2, EL1PTEN[11 - 11], EL1PCEN[1 - 1]);
 
 define_sys_register!(CNTVOFF_EL2);
 define_sys_register!(CNTV_CVAL_EL0);
