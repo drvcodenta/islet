@@ -4,11 +4,24 @@ use vmsa::guard::Content;
 
 use crate::measurement::{Measurement, MEASUREMENTS_SLOT_NR};
 use crate::realm::mm::IPATranslation;
+use crate::realm::mm::stage2_translation::Stage2Translation;
 use crate::realm::vcpu::VCPU;
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 use spin::mutex::Mutex;
+use alloc::collections::btree_map::BTreeMap;
+
+lazy_static! {
+    static ref RTT_TABLES: Mutex<BTreeMap<usize, Arc<Mutex<Box<dyn IPATranslation>>>>> = {
+        let m = BTreeMap::new();
+        Mutex::new(m)
+    };
+}
+
+pub fn insert_rtt(id: usize, table: Arc<Mutex<Box<dyn IPATranslation>>>) {
+    RTT_TABLES.lock().insert(id, table);
+}
 
 #[derive(Debug)]
 pub struct Rd {
@@ -18,7 +31,6 @@ pub struct Rd {
     ipa_bits: usize,
     rec_index: usize,
     s2_starting_level: isize,
-    s2_table: Arc<Mutex<Box<dyn IPATranslation>>>,
     hash_algo: u8,
     pub measurements: [Measurement; MEASUREMENTS_SLOT_NR],
     pub vcpus: Vec<Arc<Mutex<VCPU>>>,
@@ -31,7 +43,6 @@ impl Rd {
         rtt_base: usize,
         ipa_bits: usize,
         s2_starting_level: isize,
-        s2_table: Arc<Mutex<Box<dyn IPATranslation>>>,
     ) {
         self.vmid = vmid;
         self.state = State::New;
@@ -39,8 +50,6 @@ impl Rd {
         self.ipa_bits = ipa_bits;
         self.rec_index = 0;
         self.s2_starting_level = s2_starting_level;
-        // XXX: without `clone()`, the below assignment would cause a data abort exception
-        self.s2_table = s2_table.clone();
         self.measurements = [Measurement::empty(); MEASUREMENTS_SLOT_NR];
         self.vcpus = Vec::new();
     }
@@ -49,8 +58,8 @@ impl Rd {
         self.vmid as usize
     }
 
-    pub fn s2_table(&self) -> &Arc<Mutex<Box<dyn IPATranslation>>> {
-        &self.s2_table
+    pub fn s2_table(&self) -> Arc<Mutex<Box<dyn IPATranslation>>> {
+        Arc::clone(RTT_TABLES.lock().get_mut(&self.id()).unwrap())
     }
 
     pub fn state(&self) -> State {
