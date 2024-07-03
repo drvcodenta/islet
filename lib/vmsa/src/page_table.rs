@@ -349,6 +349,10 @@ where
     ) -> Result<(), Error> {
         assert!(L::THIS_LEVEL <= S::MAP_TABLE_LEVEL);
 
+        use crate::println;
+        use io::Write;
+        println!("io-test");
+
         let index = E::index::<L>(guest.address().into());
 
         if L::THIS_LEVEL < S::MAP_TABLE_LEVEL {

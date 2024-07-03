@@ -25,3 +25,18 @@ impl From<usize> for RawGPA {
         Self(addr as u64)
     }
 }
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => {
+    let buffer = alloc::format!($($arg)*);
+    let _ = io::stdout().write_all(buffer.as_bytes());
+    };
+}
+
+#[macro_export]
+macro_rules! println {
+    () => {crate::print!("\n")};
+    ($fmt:expr) => {crate::print!(concat!($fmt, "\n"))};
+    ($fmt:expr, $($arg:tt)*) => {crate::print!(concat!($fmt, "\n"), $($arg)*)};
+}
