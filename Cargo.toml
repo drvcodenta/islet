@@ -4,16 +4,20 @@ members = [
     "lib/armv9a",
     "lib/cca-token",
     "lib/cose",
-    "lib/safe-abstraction",
-    "lib/vmsa",
-    "lib/rsi-el0",
-    "lib/uart",
     "lib/io",
+    "lib/rsi-el0",
+    "lib/safe-abstraction",
+    "lib/uart",
+    "lib/vmsa",
     "plat/fvp",
     "realm/rsi-test",
     "rmm/",
     "sdk",
     "model-checking",
+]
+
+exclude = [
+    "lib/unsafe-analyzer",
 ]
 
 [profile.dev]
