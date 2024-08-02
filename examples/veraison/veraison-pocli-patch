@@ -1,0 +1,13 @@
+diff --git a/deployments/docker/src/builder.docker b/deployments/docker/src/builder.docker
+index d6bc310..1ee2187 100644
+--- a/deployments/docker/src/builder.docker
++++ b/deployments/docker/src/builder.docker
+@@ -62,7 +62,7 @@ RUN go mod download &&\
+     go install github.com/mitchellh/protoc-gen-go-json@v1.1.0 &&\
+     go install github.com/veraison/corim/cocli@latest &&\
+     go install github.com/veraison/evcli/v2@latest &&\
+-    go install github.com/veraison/pocli@latest &&\
++    go install github.com/veraison/pocli@2843c65 &&\
+     go install github.com/go-delve/delve/cmd/dlv@v1.22.1
+
+ ADD --chown=builder:builder builder-dispatcher .

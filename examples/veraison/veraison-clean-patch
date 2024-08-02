@@ -1,0 +1,13 @@
+diff --git a/deployments/docker/Makefile b/deployments/docker/Makefile
+index d02aed3..42d9ea4 100644
+--- a/deployments/docker/Makefile
++++ b/deployments/docker/Makefile
+@@ -189,7 +189,7 @@ docker-clean:
+ 	@# ubuntu uses an older version of docker without -f option for network; hence the || : cludge
+ 	docker network rm $(VERAISON_NETWORK) || :
+ 	docker image rm -f veraison/builder veraison/keycloak veraison/vts veraison/provisioning \
+-		veraison/verification veraison/manager
++		veraison/verification veraison/management
+ 	rm -rf  .built
+
+ .PHONY: host-clean
