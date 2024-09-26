@@ -14,6 +14,7 @@ use crate::realm::mm::IPATranslation;
 use crate::realm::rd::State;
 use crate::realm::rd::{insert_rtt, Rd};
 use crate::realm::registry::{remove, VMID_SET};
+use crate::rmi::{HASH_ALGO_SHA256, HASH_ALGO_SHA512};
 use crate::rmi::{self, metadata::IsletRealmMetadata};
 use crate::{get_granule, get_granule_if};
 
@@ -29,6 +30,15 @@ pub fn set_event_handler(mainloop: &mut Mainloop) {
 
         let mut rd_granule = get_granule_if!(rd, GranuleState::RD)?;
         let mut rd = rd_granule.content_mut::<Rd>()?;
+
+        let (hash_algo, hash_len) = match rd.hash_algo() {
+            HASH_ALGO_SHA256 => ("sha256", 32),
+            HASH_ALGO_SHA512 => ("sha512", 64),
+            _ => ("INVALID_HASH_ALGO", 1),
+        };
+
+        info!("RIM: {}", hex::encode(&rd.measurements[MEASUREMENTS_SLOT_RIM].as_slice()[..hash_len]));
+        info!("RIM_HASH_ALGO: {}", hash_algo);
 
         if let Some(meta) = rd.metadata() {
             info!("Realm metadata is in use!");
