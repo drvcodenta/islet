@@ -11,16 +11,14 @@ pub use mock::host::{alloc_granule, granule_addr};
 use alloc::vec::Vec;
 
 pub fn rmi<const COMMAND: usize>(arg: &[usize]) -> Vec<usize> {
-    let mut mainloop = Mainloop::new();
-    let monitor = Monitor::new();
-    (&mut mainloop).add_event_handlers();
+    let rmm = Monitor::new();
 
     let mut ctx = Context::new(COMMAND);
     ctx.init_arg(&arg);
     ctx.init_ret(&[0; 8]);
 
-    let handler = mainloop.on_event.get(&COMMAND).unwrap();
-    if let Err(code) = handler(&ctx.arg, &mut ctx.ret, &monitor) {
+    let handler = rmm.rmi.on_event.get(&COMMAND).unwrap();
+    if let Err(code) = handler(&ctx.arg, &mut ctx.ret, &rmm) {
         ctx.ret[0] = code.into();
     }
     ctx.ret.to_vec()
