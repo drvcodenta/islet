@@ -17,7 +17,11 @@ pub struct Monitor<'a> {
 #[cfg(kani)]
 // `rsi` and `page_table` are removed in model checking harnesses
 // to reduce overall state space
-pub struct Monitor<'a> {}
+pub struct Monitor<'a> {
+    pub rmi: RmiHandle,
+    mainloop: Mainloop,
+    phantom: core::marker::PhantomData<&'a bool>,
+}
 
 impl<'a> Monitor<'a> {
     #[cfg(not(kani))]
@@ -32,7 +36,11 @@ impl<'a> Monitor<'a> {
 
     #[cfg(kani)]
     pub fn new() -> Self {
-        Self {}
+        Self {
+            rmi: RmiHandle::new(),
+            mainloop: Mainloop::new(),
+            phantom: core::marker::PhantomData,
+        }
     }
 
     #[cfg(not(kani))]
@@ -133,6 +141,7 @@ impl<'a> Monitor<'a> {
     }
 
     pub fn handle_rsi(&self, ctx: &mut Context, rec: &mut Rec<'_>, run: &mut Run) -> usize {
+        #[cfg(not(kani))]
         match self.rsi.on_event.get(&ctx.cmd) {
             Some(handler) => {
                 ctx.do_rsi(|arg, ret| handler(arg, ret, self, rec, run));
