@@ -25,7 +25,6 @@ impl<'a> PageTable<'a> {
         let inner = Mutex::new(Pin::new(Box::new(Inner::new())));
         #[cfg(not(any(miri, test)))]
         inner.lock().fill(layout);
-
         Self { inner }
     }
 
@@ -52,36 +51,11 @@ struct Inner<'a> {
 
 impl<'a> Inner<'a> {
     pub fn new() -> Self {
-        use core::ptr::{addr_of, addr_of_mut};
-        static mut COLD_BOOT: bool = true;
-        static mut ADDR: u64 = 0;
-
-        let root_pgtbl = unsafe {
-            if (addr_of!(COLD_BOOT) as *const bool).read_volatile() {
-                let root_pgtbl = RootPageTable::<
-                    VirtAddr,
-                    L1Table,
-                    Entry,
-                    { <L1Table as Level>::NUM_ENTRIES },
-                >::new_in(&DefaultMemAlloc {})
-                .unwrap();
-
-                (addr_of_mut!(COLD_BOOT) as *mut bool).write_volatile(false);
-                (addr_of_mut!(ADDR) as *mut u64)
-                    .write_volatile(root_pgtbl as *const _ as *const c_void as u64);
-
-                root_pgtbl
-            } else {
-                let base: u64 = (addr_of!(ADDR) as *const u64).read_volatile();
-                let ptr = base as *mut RootPageTable<
-                    VirtAddr,
-                    L1Table,
-                    Entry,
-                    { <L1Table as Level>::NUM_ENTRIES },
-                >;
-                &mut *ptr
-            }
-        };
+        let root_pgtbl =
+            RootPageTable::<VirtAddr, L1Table, Entry, { <L1Table as Level>::NUM_ENTRIES }>::new_in(
+                &DefaultMemAlloc {},
+            )
+            .unwrap();
 
         Self {
             root_pgtbl,
@@ -135,6 +109,7 @@ impl<'a> Inner<'a> {
     }
 
     fn get_base_address(&self) -> *const c_void {
+        debug!("Member {:p}", self.root_pgtbl);
         self.root_pgtbl as *const _ as *const c_void
     }
 

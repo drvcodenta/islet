@@ -165,6 +165,7 @@ unsafe fn setup_mmu_cfg(ttbl_base: u64) {
     TCR_EL2.write(tcr_el2);
     // Set the ttbl base address, this is where the memory address translation
     // table walk starts
+    debug!("Set TTBT0_EL2 {:X}", ttbl_base);
     TTBR0_EL2.set(ttbl_base);
     core::arch::asm!("dsb ish", "isb",);
 }
